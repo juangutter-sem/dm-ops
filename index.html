@@ -357,7 +357,13 @@
     const rht = document.createElement('h2'); rht.textContent='Naming Convention'; rh.appendChild(rht);
     const mode = document.createElement('span'); mode.className='badge'; mode.textContent = (SCHEMA_MODE==='Loaded'?'Remote JSON':SCHEMA_MODE); rh.appendChild(mode);
     rh.style.justifyContent='space-between'; right.appendChild(rh);
-    renderConvention(right, gen);
+    
+// NEW: create a content container inside the right panel
+const rightContent = document.createElement('main');
+right.appendChild(rightContent);
+
+// UPDATED: only render into the content container (leaves header + badge intact)
+renderConvention(rightContent, gen);
 
     // mount
     pair.appendChild(left);
