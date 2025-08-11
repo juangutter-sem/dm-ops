@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Asset Name Generator</title>
+  <title>DM Name Generator</title>
   <meta name="description" content="Build consistent asset names from a documented naming convention." />
 
   <!-- Inter font like the screenshot -->
@@ -46,7 +46,7 @@
 
     /* Page header */
     header.page{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-    h1{margin:0;font-size:34px;font-weight:700;letter-spacing:.2px}
+    h1{margin:0;font-size:28px;font-weight:700;letter-spacing:.2px}
     .topmeta p{margin:6px 0 0;color:var(--muted)}
     .themeToggle{
       border:1px solid var(--border); background:var(--card); color:var(--fg);
@@ -54,7 +54,7 @@
     }
 
     /* Layout */
-    .grid{display:grid; grid-template-columns: 1.08fr .92fr; gap:16px}
+    .grid{display:grid; grid-template-columns: 1.1fr .9fr; gap:18px}
     .panel{
       background:var(--card); border:1px solid var(--border);
       border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden
@@ -68,7 +68,7 @@
     .panel main{padding:16px}
 
     /* Left form */
-    .row{display:grid; grid-template-columns: 200px 1fr; gap:12px; align-items:center; margin-bottom:10px}
+    .row{display:grid; grid-template-columns: 220px 1fr; gap:12px; align-items:center; margin-bottom:12px}
     .label{display:flex; flex-direction:column; gap:6px}
     .label small{color:var(--muted)}
     .select{display:flex; gap:8px; align-items:center; width:100%}
@@ -147,6 +147,46 @@
     pre{white-space:pre-wrap; word-break:break-word}
     .footer small{color:var(--muted)}
     .copyright{color:var(--muted); font-size:12px; margin-left:2px}
+
+    /* Responsive tweaks */
+    @media (max-width: 1100px){
+      .grid{grid-template-columns:1fr; gap:14px}
+    }
+    @media (max-width: 720px){
+      header.page{flex-direction:column; align-items:flex-start; gap:10px}
+      .row{grid-template-columns:1fr; gap:8px}
+      .panel main{padding:14px}
+      .panel header{padding:12px 14px}
+      .container{padding:22px 16px}
+    }
+    @media (prefers-reduced-motion:no-preference){
+      .panel, .themeToggle, select, input[type="url"], .btn{transition:box-shadow .2s ease, transform .05s ease}
+      .btn:active{transform:translateY(1px)}
+      select:hover, .themeToggle:hover{box-shadow:0 2px 8px rgba(0,0,0,.08)}
+    }
+
+
+/* Increased vertical space between sections inside panels */
+.panel main h2, 
+.panel main h3, 
+.panel main header {
+  margin-top: 22px !important; /* ← increase/decrease this for more/less space */
+}
+
+.panel main .row {
+  margin-top: 6px;   /* space above each row */
+  margin-bottom: 14px; /* space below each row */
+}
+
+
+/* Add more vertical space between generator sections */
+.pair {
+  margin-bottom: 32px;
+}
+#pairs {
+  margin-top: -22px; /* adjust this number as needed */
+}
+
   </style>
 </head>
 <body>
@@ -154,8 +194,8 @@
 
   <header class="page container">
     <div class="topmeta">
-      <h1>Asset Name Generator</h1>
-      <p>Build consistent asset names from a documented naming convention.</p>
+      <h1>[DM Ops] Name Generator</h1>
+      <p>Build consistent names for Campaigns, Ad Groups, and Assets based on the standardized Naming Convention. To add or edit parameters/values contact DM Ops.</p>
     </div>
     <button id="themeBtn" class="themeToggle" type="button" aria-label="Toggle theme">🌓</button>
   </header>
@@ -166,7 +206,7 @@
 
   <footer class="container" style="margin-top:16px">
     <div class="footer">
-      <small class="copyright">© 2025 Marketing Ops</small>
+      <small class="copyright">© 2025 DM Marketing Ops</small>
     </div>
   </footer>
 
@@ -211,7 +251,6 @@
     panelRight.innerHTML = '';
     const main = document.createElement('main');
 
-    // Current source label up top (badge in header already reflects mode)
     const groups = Object.entries(gen.fields || {});
 
     groups.forEach(([group, arr])=>{
@@ -230,11 +269,7 @@
       main.appendChild(d);
     });
 
-    // Raw schema last
-    const detailsRaw = document.createElement('details');
-    const sumR = document.createElement('summary'); sumR.textContent = 'Raw schema'; detailsRaw.appendChild(sumR);
-    const pre = document.createElement('pre'); pre.textContent = JSON.stringify(gen, null, 2); detailsRaw.appendChild(pre);
-    main.appendChild(detailsRaw);
+    // Raw schema intentionally removed from UI per request.
 
     panelRight.appendChild(main);
   }
@@ -245,7 +280,11 @@
     // LEFT: generator panel
     const left = document.createElement('section'); left.className='panel';
     const lh = document.createElement('header');
-    const h2 = document.createElement('h2'); h2.textContent = 'Generator'; lh.appendChild(h2);
+    const h2 = document.createElement('h2'); 
+    if(gen.id === 'campaign'){h2.textContent = 'Campaign Name Generator';}
+    else if(gen.id === 'adgroup'){h2.textContent = 'Ad Group Name Generator';}
+    else if(gen.id === 'asset'){h2.textContent = 'Asset Name Generator';}
+    else {h2.textContent = 'Generator';} lh.appendChild(h2);
     const leftControls = document.createElement('div'); leftControls.style.display='flex'; leftControls.style.gap='8px'; leftControls.style.alignItems='center';
     const allReq = !(gen.optional && gen.optional.length);
     const reqChip = document.createElement('span');
@@ -271,7 +310,7 @@
 
       const label = document.createElement('div'); label.className='label';
       const lab = document.createElement('label'); lab.textContent = field; lab.setAttribute('for', `${gen.id}_${field}`);
-      const hint = document.createElement('small'); hint.textContent = required.has(field)? 'Required' : 'Optional';
+      const hint = document.createElement('small'); if(!required.has(field)){ hint.textContent = 'Optional'; }
       label.appendChild(lab); label.appendChild(hint);
 
       const selWrap = document.createElement('div'); selWrap.className='select';
@@ -430,16 +469,8 @@
   function renderAll(){
     const pairs = document.getElementById('pairs');
     pairs.innerHTML = '';
-
-    // Show only the "asset" generator by default (to match the screenshot).
-    const params = new URLSearchParams(location.search);
-    const ONLY = params.get('only') || 'asset';
-
-    let gens = (MASTER.generators||[]);
-    if(ONLY !== 'all'){
-      gens = gens.filter(g => g.id === ONLY);
-    }
-    gens.forEach(gen => renderPair(pairs, gen));
+    // Render ALL generators by default
+    (MASTER.generators || []).forEach(gen => renderPair(pairs, gen));
   }
 
   async function loadSchema(url){
@@ -453,7 +484,6 @@
       try{ localStorage.setItem(SCHEMA_KEY, JSON.stringify(MASTER)); }catch(_){}
       renderAll();
     }catch(e){
-      // fallback order: localStorage -> embedded
       try{
         const raw = localStorage.getItem(SCHEMA_KEY);
         if(raw){ MASTER = JSON.parse(raw); SCHEMA_MODE = 'Local copy'; renderAll(); return; }
@@ -464,9 +494,9 @@
     }
   }
 
-  // Boot: render embedded first, then try to fetch external schema.json
+  // Boot: render embedded first, then try to fetch external schema from known names
   renderAll();
-  loadSchema('schema.json');
+  loadSchema('schema.master.json').catch(()=>loadSchema('schema.json'));
   </script>
 </body>
 </html>
