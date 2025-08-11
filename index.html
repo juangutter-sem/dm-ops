@@ -7,7 +7,7 @@
   <meta name="color-scheme" content="dark light" />
   <meta name="theme-color" content="#0b0e13" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#eef1f7" media="(prefers-color-scheme: light)">
-  <title>Campaign Name Generator</title>
+  <title>Name Generators</title>
   <style>
     /* ===== THEME ===== */
     :root{
@@ -25,6 +25,7 @@
     /* ===== LAYOUT ===== */
     *{box-sizing:border-box}
     html,body{height:100%}
+    html{overflow-y:scroll}
     body{margin:0;background:radial-gradient(1200px 600px at 10% -10%, var(--bg2) 0%, var(--bg) 45%, var(--bg) 100%);color:var(--text);font-family: ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial;transition:background .3s ease,color .3s ease}
     a.skip{position:absolute;left:-999px;top:auto;width:1px;height:1px;overflow:hidden}
     a.skip:focus{left:16px;top:16px;width:auto;height:auto;background:var(--card);color:var(--text);padding:8px 12px;border-radius:10px;border:1px solid var(--outline);box-shadow:var(--shadow)}
@@ -40,6 +41,7 @@
     .card{background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.01));border:1px solid var(--outline);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
     .card h2{margin:4px 0 14px;font-size:18px}
     .row{display:flex;gap:var(--gap);align-items:center;flex-wrap:wrap}
+    .toolbar{margin-bottom:var(--gap)}
     .grid{display:grid;gap:var(--gap);grid-template-columns:repeat(2,minmax(180px,1fr))}
     @media (max-width:720px){.grid{grid-template-columns:1fr}}
     label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
@@ -85,55 +87,112 @@
 
     /* ===== Focus states ===== */
     :where(button, [role="button"], select, summary).focus-visible{outline:var(--focus);outline-offset:2px}
+    select.missing {
+      border-color: #e74c3c !important; /* red border */
+      box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.3);
+    }
+    
   </style>
 </head>
 <body>
   <a class="skip" href="#main">Skip to main content</a>
   <header>
     <div class="topmeta">
-      <h1>Campaign Name Generator</h1>
+      <h1>Name Generators</h1>
       <p>Build consistent asset names from a documented naming convention.</p>
     </div>
     <button id="themeBtn" class="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme"><span id="themeIcon">🌙</span></button>
   </header>
 
-  <main id="main">
-    <!-- Left: Generator -->
-    <section class="card" id="genPanel" aria-labelledby="genHeading">
-      <h2 id="genHeading">Generator</h2>
+  <main id="main" style="display:grid;grid-template-columns:1fr;gap:var(--gap)">
+  <!-- Campaign Name pair -->
+  <section class="pair" id="pair_campaign" style="display:grid;grid-template-columns:1.1fr .9fr;gap:var(--gap);align-items:start">
+    <section class="card gen" id="gen_campaign" aria-labelledby="genHeading_campaign">
+      <h2 id="genHeading_campaign">Campaign Name</h2>
       <div class="divider" role="presentation"></div>
-      <div class="row" style="justify-content:space-between">
-        <span class="pill" aria-live="polite" id="reqNote">All fields required</span>
+      <div class="row toolbar" style="justify-content:space-between">
+        <span class="pill" aria-live="polite" id="reqNote_campaign">All fields required</span>
         <div class="row" style="gap:8px">
-          <button id="resetBtn" class="btn" type="button">Clear</button>
-          <button id="copyNewBtn" class="btn ghost" type="button" disabled title="Copy and clear for next">Copy &amp; New</button>
+          <button id="resetBtn_campaign" class="btn" type="button">Clear</button>
         </div>
       </div>
-      <div class="grid" id="fields"></div>
-
-      <div class="output" id="output" aria-live="polite" aria-atomic="true" role="status">Select values to generate…</div>
+      <div class="grid" id="fields_campaign"></div>
+      <div class="output" id="output_campaign" aria-live="polite" aria-atomic="true" role="status">Select values to generate…</div>
       <div class="row" style="margin-top:8px; gap:10px">
-        <button id="copyBtn" class="btn primary" type="button" disabled aria-describedby="validity">Copy</button>
-        <span class="pill" id="validity" aria-live="polite">Incomplete</span>
+        <button id="copyBtn_campaign" class="btn primary" type="button" disabled aria-describedby="validity_campaign">Copy</button>
+        <span class="pill muted" id="validity_campaign">Incomplete</span>
       </div>
-
-      <!-- Recent names memory -->
-      <section class="recents" id="recents" aria-label="Recent names"></section>
     </section>
 
-    <!-- Right: Convention / Values -->
-    <section class="card" aria-labelledby="valuesHeading">
-      <h2 id="valuesHeading">Naming Convention</h2>
-      <div class="row" style="justify-content:space-between">
-        <div>
-          <label>Current source</label>
-          <div class="pill" id="sourcePill">Embedded JSON</div>
+    <section class="card values" id="values_campaign" aria-labelledby="valuesHeading_campaign">
+      <h2 id="valuesHeading_campaign">Naming Convention</h2>
+      <div class="divider" role="presentation"></div>
+      <div class="row toolbar">
+        <span class="pill sourcePill" id="sourcePill_campaign">Embedded JSON</span>
+      </div>
+      <div id="valuesList_campaign"></div>
+    </section>
+  </section>
+  <!-- Ad Group Name pair -->
+  <section class="pair" id="pair_adgroup" style="display:grid;grid-template-columns:1.1fr .9fr;gap:var(--gap);align-items:start">
+    <section class="card gen" id="gen_adgroup" aria-labelledby="genHeading_adgroup">
+      <h2 id="genHeading_adgroup">Ad Group Name</h2>
+      <div class="divider" role="presentation"></div>
+      <div class="row toolbar" style="justify-content:space-between">
+        <span class="pill" aria-live="polite" id="reqNote_adgroup">All fields required</span>
+        <div class="row" style="gap:8px">
+          <button id="resetBtn_adgroup" class="btn" type="button">Clear</button>
         </div>
       </div>
-
-      <div id="valuesList" style="margin-top:10px"></div>
+      <div class="grid" id="fields_adgroup"></div>
+      <div class="output" id="output_adgroup" aria-live="polite" aria-atomic="true" role="status">Select values to generate…</div>
+      <div class="row" style="margin-top:8px; gap:10px">
+        <button id="copyBtn_adgroup" class="btn primary" type="button" disabled aria-describedby="validity_adgroup">Copy</button>
+        <span class="pill muted" id="validity_adgroup">Incomplete</span>
+      </div>
     </section>
-  </main>
+
+    <section class="card values" id="values_adgroup" aria-labelledby="valuesHeading_adgroup">
+      <h2 id="valuesHeading_adgroup">Naming Convention</h2>
+      <div class="divider" role="presentation"></div>
+      <div class="row toolbar">
+        <span class="pill sourcePill" id="sourcePill_adgroup">Embedded JSON</span>
+      </div>
+      <div id="valuesList_adgroup"></div>
+    </section>
+  </section>
+  <!-- Asset Name pair -->
+  <section class="pair" id="pair_asset" style="display:grid;grid-template-columns:1.1fr .9fr;gap:var(--gap);align-items:start">
+    <section class="card gen" id="gen_asset" aria-labelledby="genHeading_asset">
+      <h2 id="genHeading_asset">Asset Name</h2>
+      <div class="divider" role="presentation"></div>
+      <div class="row toolbar" style="justify-content:space-between">
+        <span class="pill" aria-live="polite" id="reqNote_asset">All fields required</span>
+        <div class="row" style="gap:8px">
+          <button id="resetBtn_asset" class="btn" type="button">Clear</button>
+        </div>
+      </div>
+      <div class="grid" id="fields_asset"></div>
+      <div class="output" id="output_asset" aria-live="polite" aria-atomic="true" role="status">Select values to generate…</div>
+      <div class="row" style="margin-top:8px; gap:10px">
+        <button id="copyBtn_asset" class="btn primary" type="button" disabled aria-describedby="validity_asset">Copy</button>
+        <span class="pill muted" id="validity_asset">Incomplete</span>
+      </div>
+    </section>
+
+    <section class="card values" id="values_asset" aria-labelledby="valuesHeading_asset">
+      <h2 id="valuesHeading_asset">Naming Convention</h2>
+      <div class="divider" role="presentation"></div>
+      <div class="row toolbar">
+        <span class="pill sourcePill" id="sourcePill_asset">Embedded JSON</span>
+      </div>
+      <div id="valuesList_asset"></div>
+    </section>
+  </section>
+
+  <!-- Recents -->
+  <section class="card" id="recents" aria-live="polite" aria-atomic="true"></section>
+</main>
 
   <footer>© <span id="year"></span> Marketing Ops</footer>
 
@@ -144,95 +203,128 @@
   </noscript>
 
   <script>
-    // === Schema (embedded) — edit this object when you need to update ===
-    const FALLBACK_SCHEMA = {
-      order:["Campaign category","Campaign Name","Persona","Landing Page Type","LP Content Name","Creative Name","Campaign Content","Asset Format","Asset SubType","Language"],
-      delimiter:"_", case:"lower",
-      fields:{
-        "Campaign category":[{label:"Brand",code:"brand"},{label:"Main",code:"main"},{label:"Product",code:"product"}],
-        "Campaign Name":[{label:"Makeit",code:"makeit"},{label:"Gaby",code:"gaby"},{label:"SMB",code:"smb"},{label:"Rapidai",code:"rapidai"},{label:"PFC",code:"pfc"},{label:"PFCedgy",code:"pfcedgy"},{label:"Toolkits",code:"toolkits"}],
-        "Persona":[{label:"fsm",code:"fsm"},{label:"seo",code:"seo"},{label:"fsm-seo",code:"fsm-seo"},{label:"smb-fsm",code:"smb-fsm"},{label:"smb",code:"smb"},{label:"all-psn",code:"all-psn"}],
-        "Landing Page Type":[{label:"BP",code:"bp"},{label:"LP",code:"lp"},{label:"SS",code:"ss"},{label:"WEB",code:"web"},{label:"EVT",code:"evt"},{label:"WP",code:"wp"},{label:"ACD",code:"acd"},{label:"EBOOK",code:"ebook"},{label:"CS",code:"cs"}],
-        "LP Content Name":[{label:"solution-all-in-one",code:"solution-all-in-one"},{label:"product-seo-challenges",code:"product-seo-challenges"},{label:"traffic-analytics-7-new",code:"traffic-analytics-7-new"},{label:"product-content-marketing",code:"product-content-marketing"},{label:"product-free-trial",code:"product-free-trial"},{label:"product-instant-market-insights-1",code:"product-instant-market-insights-1"},{label:"product-all-in-one-local-marketing-solution-new",code:"product-all-in-one-local-marketing-solution-new"},{label:"product-keyword-magic-tool-7",code:"product-keyword-magic-tool-7"},{label:"product-semrush-plans-comparison",code:"product-semrush-plans-comparison"},{label:"creating-reports-with-semrush-report-builder",code:"creating-reports-with-semrush-report-builder"},{label:"advanced-google-ads-tips-skyrocket-your-profit",code:"advanced-google-ads-tips-skyrocket-your-profit"}],
-        "Creative Name":[{label:"competitorresearch",code:"competitorresearch"},{label:"fixsiteseo",code:"fixsiteseo"},{label:"jtbddiscoverwinningkeywords",code:"jtbddiscoverwinningkeywords"},{label:"allseoonetab",code:"allseoonetab"},{label:"wanttoknow",code:"wanttoknow"},{label:"seochecklist",code:"seochecklist"},{label:"discoverexactkeywords",code:"discoverexactkeywords"},{label:"fixtechnicalseo",code:"fixtechnicalseo"},{label:"algorithmchanged",code:"algorithmchanged"},{label:"competitorsknowyourstrategy",code:"competitorsknowyourstrategy"},{label:"12tabsopen",code:"12tabsopen"},{label:"searchmoves",code:"searchmoves"},{label:"404problems",code:"404problems"},{label:"herocornershop",code:"herocornershop"},{label:"sssmileworks",code:"sssmileworks"},{label:"herofancylimousines",code:"herofancylimousines"},{label:"sssmokies",code:"sssmokies"},{label:"jtbdfreetrial",code:"jtbdfreetrial"},{label:"jtbdrankinyear",code:"jtbdrankinyear"},{label:"nottocry",code:"nottocry"},{label:"toomanythings",code:"toomanythings"},{label:"createcontentforpeople",code:"createcontentforpeople"},{label:"jtbdfreetrialrecolored",code:"jtbdfreetrialrecolored"},{label:"youragency",code:"youragency"},{label:"explorer",code:"explorer"},{label:"herocorporateladder",code:"herocorporateladder"},{label:"newtoseo",code:"newtoseo"},{label:"improveseoperformance",code:"improveseoperformance"},{label:"startingseojourney",code:"startingseojourney"},{label:"makebusinessnr1",code:"makebusinessnr1"},{label:"succeedonline",code:"succeedonline"},{label:"comicsilentrating",code:"comicsilentrating"},{label:"betterseo",code:"betterseo"},{label:"HJTBDImproveblogpost",code:"hjtbdimproveblogpost"},{label:"rankhighercontent",code:"rankhighercontent"},{label:"contentinone",code:"contentinone"},{label:"createseofriendlycontentinoneplace",code:"createseofriendlycontentinoneplace"},{label:"simlpifysocialmedia",code:"simlpifysocialmedia"},{label:"checklist",code:"checklist"},{label:"fixissuesnew",code:"fixissuesnew"},{label:"UGCrankhigh",code:"ugcrankhigh"},{label:"growbusiness",code:"growbusiness"},{label:"investigatecompetitors",code:"investigatecompetitors"},{label:"HJTBDfindpopularproducts",code:"hjtbdfindpopularproducts"},{label:"alltoolsinone",code:"alltoolsinone"},{label:"UGCdrivetraffic",code:"ugcdrivetraffic"},{label:"comicdontdothis",code:"comicdontdothis"},{label:"reportresults",code:"reportresults"},{label:"quotehighintent",code:"quotehighintent"},{label:"404highintent",code:"404highintent"},{label:"stuckhighintent",code:"stuckhighintent"},{label:"everythingyouneed",code:"everythingyouneed"},{label:"SEOChallengesYTComponent",code:"seochallengesytcomponent"},{label:"SEOChallengesOptimizedCreatives",code:"seochallengesoptimizedcreatives"},{label:"competitorsspikedhighintent",code:"competitorsspikedhighintent"},{label:"competitorsoutpacinghighintent",code:"competitorsoutpacinghighintent"},{label:"analyzerival",code:"analyzerival"},{label:"analyzecompetitor",code:"analyzecompetitor"},{label:"CompetitiveResearchYTComponent",code:"competitiveresearchytcomponent"},{label:"grabaudiencesattention",code:"grabaudiencesattention"},{label:"SEOWritingAssistant5YTComponent",code:"seowritingassistant5ytcomponent"},{label:"Swamped",code:"swamped"},{label:"whichtask",code:"whichtask"},{label:"EasySolutionsOptimizedCreatives",code:"easysolutionsoptimizedcreatives"},{label:"digitalinsighttrends",code:"digitalinsighttrends"},{label:"trafficinsights",code:"trafficinsights"},{label:"sslibereatnew",code:"sslibereatnew"},{label:"revampmarketingstrategynew",code:"revampmarketingstrategynew"},{label:"ssmorningside",code:"ssmorningside"},{label:"jtbdAImagic",code:"jtbdaimagic"},{label:"findkeywords",code:"findkeywords"},{label:"ugc3reasons",code:"ugc3reasons"},{label:"UGCgrowagency",code:"ugcgrowagency"},{label:"sslibereatagency",code:"sslibereatagency"},{label:"pitchprospects",code:"pitchprospects"},{label:"ssuhs",code:"ssuhs"},{label:"whitelabelandautomatedreporting",code:"whitelabelandautomatedreporting"},{label:"driveROIwiththerightkeywords",code:"driveroiwiththerightkeywords"},{label:"tbc",code:"tbc"},{label:"ugcdailydatajen",code:"ugcdailydatajen"},{label:"rankhigh",code:"rankhigh"},{label:"getlocalcustomers",code:"getlocalcustomers"},{label:"keywordresearch",code:"keywordresearch"},{label:"dissect",code:"dissect"},{label:"boostproductivity",code:"boostproductivity"},{label:"jusrregistered",code:"jusrregistered"},{label:"inc",code:"inc"}],
-        "Campaign Content":[{label:"SeoToolkit",code:"seotoolkit"},{label:"AdvertisingToolkit",code:"advertisingtoolkit"},{label:"TrafficToolkit",code:"traffictoolkit"},{label:"ContentToolkit",code:"contenttoolkit"},{label:"SocialToolkit",code:"socialtoolkit"},{label:"LocalToolkit",code:"localtoolkit"},{label:"AIToolkit",code:"aitoolkit"},{label:"PRToolkit",code:"prtoolkit"},{label:"Allinonetoolkit",code:"allinonetoolkit"},{label:"Enterprise",code:"enterprise"}],
-        "Asset Format":[{label:"bnr-html5",code:"bnr-html5"},{label:"bnr-anim",code:"bnr-anim"},{label:"carousel",code:"carousel"},{label:"dynrem",code:"dynrem"},{label:"inmail",code:"inmail"},{label:"image",code:"image"},{label:"video10s",code:"video10s"},{label:"video15s",code:"video15s"},{label:"video30s",code:"video30s"},{label:"videoover30s",code:"videoover30s"}],
-        "Asset SubType":[{label:"AIJTBD",code:"aijtbd"},{label:"AnimatedJTBD",code:"animatedjtbd"},{label:"ShootJTBD",code:"shootjtbd"},{label:"AIUGC",code:"aiugc"},{label:"ShootVSC",code:"shootvsc"},{label:"Human",code:"human"},{label:"Human+UI",code:"humanui"},{label:"UI",code:"ui"},{label:"Quote",code:"quote"},{label:"ShootSS",code:"shootss"},{label:"Checklist",code:"checklist"},{label:"ProductWalkthrough",code:"productwalkthrough"}],
-        "Language":[{label:"EN",code:"en"},{label:"ES",code:"es"}]
+    // ===== Multi-Generator Engine =====
+    // Schema format (per level): { order:[labels], delimiter:"_", case:"lower"|"upper", fields:{ label:[{label,code},...] } }
+    // Remote schema.json can be either:
+    //  1) a single schema object (applies to Asset), or
+    //  2) { asset:{...}, campaign: {"order":["Channel","User stage","Platform","Publisher","CampaignType","Region","Language"],"delimiter":"_","case":"lower","optional":["Language"],"fields":{"Channel":[{"label":"Display","code":"dspl"},{"label":"Paid Video","code":"pv"},{"label":"Paid Social","code":"pdsc"},{"label":"Paid Search NonBrand","code":"srch"},{"label":"Paid Search Brand","code":"srch_semrush"}],"User stage":[{"label":"Engage","code":"engage"},{"label":"Convert","code":"convert"},{"label":"Attract","code":"attract"},{"label":"Branding","code":"branding"}],"Platform":[{"label":"GDN","code":"gdn"},{"label":"DV360","code":"dv"},{"label":"Yahoo","code":"yahoodsp"},{"label":"Youtube","code":"yt"},{"label":"Meta","code":"meta"},{"label":"LinkedIn","code":"linkedin"},{"label":"Twitch","code":"twitch"},{"label":"Reddit","code":"reddit"},{"label":"Google Ads","code":"googleads"},{"label":"bing","code":"bing"},{"label":"tiktok","code":"tiktok"}],"Publisher":[{"label":"Adroll","code":"adroll"},{"label":"Linkedin","code":"linkedin"},{"label":"Reddit","code":"reddit"},{"label":"Criteo","code":"criteo"},{"label":"Moloco","code":"moloco"},{"label":"Bing","code":"bing"}],"CampaignType":[{"label":"dynamic ads","code":"dyn"},{"label":"Discovery Ads","code":"dsc"},{"label":"Performance Max","code":"pmax"},{"label":"Connected TV","code":"ctv"},{"label":"Audio","code":"audio"},{"label":"VideoView","code":"videoview"},{"label":"VideoReach","code":"videoreach"},{"label":"CPV","code":"cpv"},{"label":"VAC","code":"vac"},{"label":"DemandGen","code":"demandgen"},{"label":"Podcast","code":"podcast"}],"Region":[{"label":"Core","code":"Core"},{"label":"Core1","code":"Core1"},{"label":"Core2","code":"Core2"},{"label":"ROW","code":"ROW"},{"label":"ROWT1","code":"ROWT1"},{"label":"ROWT2","code":"ROWT2"},{"label":"Asia","code":"Asia"},{"label":"Nordics","code":"Nordics"},{"label":"DE","code":"DE"},{"label":"ES","code":"ES"},{"label":"FR","code":"FR"},{"label":"IT","code":"IT"},{"label":"US","code":"US"},{"label":"IN","code":"IN"},{"label":"PT","code":"PT"},{"label":"LATAM","code":"LATAM"},{"label":"BR","code":"BR"},{"label":"UY","code":"UY"},{"label":"AR","code":"AR"},{"label":"PE","code":"PE"},{"label":"ANZ","code":"ANZ"},{"label":"DACH","code":"DACH"}],"Language":[{"label":"English","code":"EN"},{"label":"Spanish","code":"ES"},{"label":"Portuguese","code":"PT"},{"label":"Italian","code":"IT"},{"label":"German","code":"DE"},{"label":"French","code":"FR"},{"label":"Japanese","code":"JA"},{"label":"Spanish Latam","code":"ES_Latam"}]}}, adgroup: {"order":["Campaign Category","Campaign Name","Campaign Objective","Company Size","Audience","Persona","Campaign Content"],"delimiter":"_","case":"lower","fields":{"Campaign Category":[{"label":"Brand","code":"brand"},{"label":"Main Funnel","code":"main"},{"label":"Product","code":"product"}],"Campaign Name":[{"label":"Make It","code":"makeit"},{"label":"Gaby","code":"gaby"},{"label":"SMB","code":"smb"},{"label":"Rapid AI","code":"rapidai"},{"label":"PFC","code":"pfc"},{"label":"PFC Edgy","code":"pfcedgy"},{"label":"Toolkits","code":"toolkits"}],"Campaign Objective":[{"label":"Engagement","code":"engagement"},{"label":"Lead","code":"lead"},{"label":"Traffic","code":"traffic"},{"label":"Conversions","code":"conversions"}],"Company Size":[{"label":"SMB","code":"smb-size"},{"label":"Mid-market","code":"mid-size"},{"label":"Enterprise","code":"enterprise-size"}],"Audience":[{"label":"Interest","code":"interest"},{"label":"Keywords","code":"kws"},{"label":"Inmarket","code":"inmarket"},{"label":"Custom Interest","code":"custom-interest"},{"label":"Combined","code":"combined"},{"label":"Lookalike","code":"lookalike"},{"label":"Visitors / Engaged","code":"visitors"},{"label":"Registered / Convert","code":"reg"},{"label":"High Intent","code":"high-intent"},{"label":"Projects+Trials","code":"project-trials"}],"Persona":[{"label":"Full-Stack Marketer","code":"fsm"},{"label":"SEO Professional","code":"seo"},{"label":"Full-stack marketer + SEO professional","code":"fsm-seo"},{"label":"SMBOwner+Fullstack marketer","code":"smb-fsm"},{"label":"SMBOwner","code":"smb-owner"},{"label":"AllPersona","code":"all-psn"}],"Campaign Content":[{"label":"SEO Toolkit","code":"SeoToolkit"},{"label":"Advertiser Toolkit","code":"AdvertisingToolkit"},{"label":"Traffic Toolkit","code":"TrafficToolkit"},{"label":"Content Toolkit","code":"ContentToolkit"},{"label":"Social Toolkit","code":"SocialToolkit"},{"label":"Local Toolkit","code":"LocalToolkit"},{"label":"AI Toolkit","code":"AIToolkit"},{"label":"PR Toolkit","code":"PRToolkit"},{"label":"All in One Toolkit","code":"Allinonetoolkit"},{"label":"Enterprise","code":"Enterprise"}]}}, asset: {
+        // (Reusing the original single-schema as the Asset fallback; kept minimal here—extend as needed.)
+        order:["Campaign category","Campaign Name","Persona","Landing Page Type","LP Content Name","Creative Name","Campaign Content","Asset Format","Asset SubType","Language"],
+        delimiter:"_", case:"lower",
+        fields:{
+          "Campaign category":[{label:"Brand",code:"brand"},{label:"Main",code:"main"},{label:"Product",code:"product"}],
+          "Campaign Name":[{label:"Make It",code:"makeit"},{label:"Discover Keywords",code:"discoverkw"},{label:"Traffic Analytics",code:"traffic"}],
+          "Persona":[{label:"Full-Stack Marketer - SEO",code:"fsm-seo"},{label:"SMB",code:"smb"},{label:"All-psn",code:"all-psn"}],
+          "Landing Page Type":[{label:"SS",code:"ss"},{label:"BP",code:"bp"},{label:"LP",code:"lp"}],
+          "LP Content Name":[{label:"traffic-analytics-7-new",code:"traffic-analytics-7-new"},{label:"instant-market-insights",code:"instant-market-insights"}],
+          "Creative Name":[{label:"jtbd Discover Winning Keywords",code:"jtbddiscoverwinningkeywords"}],
+          "Campaign Content":[{label:"Content Toolkit",code:"contenttoolkit"}],
+          "Asset Format":[{label:"Carousel",code:"carousel"},{label:"Video",code:"video"},{label:"Static",code:"static"}],
+          "Asset SubType":[{label:"ShootJTBD",code:"shootjtbd"}],
+          "Language":[{label:"English",code:"en"},{label:"Spanish",code:"es"}]
+        }
       }
     };
 
-    let NAMING_SCHEMA = FALLBACK_SCHEMA;
-    const state = {};
+    const RECENTS_KEY = 'gen_recents_v2';
 
-    const fieldsEl = document.getElementById('fields');
-    const outputEl = document.getElementById('output');
-    const copyBtn = document.getElementById('copyBtn');
-    const copyNewBtn = document.getElementById('copyNewBtn');
-    const validity = document.getElementById('validity');
-    const recentsEl = document.getElementById('recents');
-
-    // === Recents memory ===
-    const RECENTS_KEY = 'recentNames';
-    function getRecents(){
-      try{ return JSON.parse(localStorage.getItem(RECENTS_KEY)||'[]'); }catch(_){ return []; }
-    }
-    function setRecents(list){ localStorage.setItem(RECENTS_KEY, JSON.stringify(list.slice(0,5))); }
-    function addRecent(name){
-      const cur = getRecents();
-      const next = [name, ...cur.filter(n=>n!==name)].slice(0,5);
-      setRecents(next); renderRecents();
-    }
-    function clearRecents(){ setRecents([]); renderRecents(); }
-    function renderRecents(){
-      const items = getRecents();
-      if(!items.length){ recentsEl.innerHTML=''; return; }
-      recentsEl.innerHTML = `
-        <h3>Recent names</h3>
-        <div class="recent-list">
-          ${items.map((n,i)=>`<span class="recent-pill" data-recent="${i}"><span>${n}</span><button type="button" title="Copy" aria-label="Copy recent ${i+1}">⧉</button></span>`).join('')}
-          <button class="btn ghost" id="clearRecentsBtn" type="button" title="Clear recent names">Clear</button>
-        </div>`;
+    function normalizeCase(s, mode) {
+      if (mode === 'lower') return s.toLowerCase();
+      if (mode === 'upper') return s.toUpperCase();
+      return s;
     }
 
-    function renderValuesList(){
-      const box = document.getElementById('valuesList');
-      box.innerHTML = NAMING_SCHEMA.order.map(label=>{
-        const chips = (NAMING_SCHEMA.fields[label]||[]).map(v=>
-          `<div class="chip" role="button" tabindex="0" aria-label="Copy \"${v.code}\"" data-copy="${v.code}"><div class="label">${v.label}</div><div class="code">${v.code}</div></div>`
-        ).join('');
-        return `<details class="param"><summary>${label}</summary><div class="chips">${chips||'<em class="muted">No values</em>'}</div></details>`;
-      }).join('');
-    }
+    function createGenerator(levelKey, schema) {
+      const els = {
+        fields: document.getElementById('fields_' + levelKey),
+        output: document.getElementById('output_' + levelKey),
+        copyBtn: document.getElementById('copyBtn_' + levelKey),
+        validity: document.getElementById('validity_' + levelKey),
+        resetBtn: document.getElementById('resetBtn_' + levelKey),
+        reqNote: document.getElementById('reqNote_' + levelKey),
+      };
+      const state = {};
 
-    function renderFields(){
-      fieldsEl.innerHTML='';
-      NAMING_SCHEMA.order.forEach(label=>{
-        const opts = NAMING_SCHEMA.fields[label]||[];
-        const wrap=document.createElement('div');
-        const id = 'fld_'+label.replace(/\s+/g,'_').toLowerCase();
-        wrap.innerHTML=`
-          <label for="${id}">${label}</label>
-          <select id="${id}" data-label="${label}">
-            <option value="" disabled selected></option>
-            ${opts.map(v=>`<option value="${v.code}">${v.label}</option>`).join('')}
-          </select>`;
-        fieldsEl.appendChild(wrap);
-        state[label]='';
-      });
-    }
+      function renderFields() {
+        if(els.reqNote){ if(Array.isArray(schema.optional) && schema.optional.length){ els.reqNote.textContent = schema.optional.join(', ') + ' optional'; } else { els.reqNote.textContent = 'All fields required'; } }
+        els.fields.innerHTML='';
+        schema.order.forEach(label=>{
+          const opts = schema.fields[label] || [];
+          const wrap = document.createElement('div');
+          const id = levelKey + '_' + label.replace(/\s+/g,'_').toLowerCase();
+          wrap.innerHTML = `
+            <label for="${id}">${label}</label>
+            <select id="${id}" data-label="${label}" data-level="${levelKey}">
+              <option value="" disabled selected></option>
+              ${(opts||[]).map(v=>`<option value="${v.code}">${v.label}</option>`).join('')}
+            </select>`;
+          els.fields.appendChild(wrap);
+          state[label] = '';
+        });
+      }
 
-    const toCase=(s,mode)=> mode==='lower'? s.toLowerCase(): s;
+      function compose() {
+        const required = (schema.order||[]).filter(l=>!(schema.optional||[]).includes(l));
+        const parts = schema.order.map(l=>state[l]).filter(Boolean);
+        const complete = required.every(l=>!!state[l]);
+        const out = normalizeCase(parts.join(schema.delimiter), schema.case);
+        els.output.textContent = out || 'Select values to generate…';
+        els.copyBtn.disabled = !complete;
+        els.copyBtn.textContent = complete ? 'Copy' : 'Select All Values';
+        els.validity.textContent = complete ? 'Ready to copy' : 'Incomplete';
+        return { out, complete };
+      }
 
-    function compose(){
-      const parts = NAMING_SCHEMA.order.map(l=>state[l]).filter(Boolean);
-      const complete = parts.length===NAMING_SCHEMA.order.length;
-      const out = toCase(parts.join(NAMING_SCHEMA.delimiter), NAMING_SCHEMA.case);
-      outputEl.textContent = out || 'Select values to generate…';
-      copyBtn.disabled = !complete;
-      copyNewBtn.disabled = !complete;
-      validity.textContent = complete? 'Ready to copy' : 'Incomplete';
-      return { out, complete };
+      function highlightMissing() {
+        schema.order.forEach(label=>{
+          const sel = els.fields.querySelector(`select[data-label="${label}"]`);
+          if (!state[label]) sel?.classList.add('missing');
+        });
+      }
+
+      function reset() {
+        els.fields.querySelectorAll('select').forEach(s=>s.selectedIndex = 0);
+        schema.order.forEach(l=>state[l]='');
+        compose();
+      }
+
+      function attach() {
+        schema.order.forEach(label=>{
+          const sel = els.fields.querySelector(`select[data-label="${label}"]`);
+          if(!sel) return;
+          sel.addEventListener('change', e=>{
+            state[label] = e.target.value || '';
+            e.target.classList.remove('missing');
+            compose();
+          });
+        });
+
+        els.resetBtn.addEventListener('click', reset);
+
+        async function doCopy(){
+          const { out, complete } = compose();
+          if(!complete){ highlightMissing(); return; }
+          try {
+            await navigator.clipboard.writeText(out);
+            toast('Copied to clipboard');
+            addRecent({ text: out, type: levelKey });
+          } catch(err) {
+            const ta = document.createElement('textarea');
+            ta.value = out; document.body.appendChild(ta); ta.select();
+            const ok = document.execCommand('copy');
+            document.body.removeChild(ta);
+            if(ok){ toast('Copied'); addRecent({ text: out, type: levelKey }); }
+            else{ toast('Copy failed'); }
+          }
+        }
+        els.copyBtn.addEventListener('click', doCopy);
+      }
+
+      renderFields();
+      attach();
+      compose();
+
+      return { compose, reset, state, schema, levelKey };
     }
 
     function toast(msg){
@@ -245,122 +337,117 @@
       setTimeout(()=>t.remove(), 1200);
     }
 
-    function resetAll(){
-      document.querySelectorAll('select').forEach(s=>s.selectedIndex=0);
-      NAMING_SCHEMA.order.forEach(l=>state[l]='');
-      compose();
+    // ---- Recents (global, tagged by type) ----
+    function getRecents(){
+      try{ return JSON.parse(localStorage.getItem(RECENTS_KEY)||'[]'); }catch(_){ return []; }
+    }
+    function setRecents(list){ localStorage.setItem(RECENTS_KEY, JSON.stringify(list.slice(0,10))); }
+
+    function addRecent(entry){
+      const cur = getRecents();
+      const next = [entry, ...cur.filter(e=>e.text!==entry.text)].slice(0,10);
+      setRecents(next); renderRecents();
+    }
+    function clearRecents(){ setRecents([]); renderRecents(); }
+    function renderRecents(){
+      const el = document.getElementById('recents');
+      if(!el) return;
+      const items = getRecents();
+      if(!items.length){ el.innerHTML=''; return; }
+      el.innerHTML = `
+        <h3>Recent names</h3>
+        <div class="recent-list">
+          ${items.map((e,i)=>`<span class="recent-pill" data-idx="${i}" title="${e.type}"><span class="muted">${e.type}</span> ${e.text} <button class="btn icon" aria-label="Copy recent ${i+1}">⧉</button></span>`).join('')}
+          <button class="btn ghost" id="clearRecentsBtn" type="button" title="Clear recent names">Clear</button>
+        </div>`;
+      el.querySelectorAll('.recent-pill .btn.icon').forEach((b,i)=>{
+        b.addEventListener('click', async ()=>{
+          const e = items[i]; if(!e) return;
+          try{ await navigator.clipboard.writeText(e.text); toast('Copied: ' + e.text); }catch(_){ toast('Copy failed'); }
+        });
+      });
+      const clr = el.querySelector('#clearRecentsBtn');
+      if(clr) clr.addEventListener('click', clearRecents);
     }
 
-    function attach(){
-      NAMING_SCHEMA.order.forEach(label=>{
-        const sel=document.querySelector(`select[data-label="${label}"]`);
-        sel.addEventListener('change', e=>{ state[label]=e.target.value; compose(); });
-      });
-      document.getElementById('resetBtn').addEventListener('click', resetAll);
-
-      async function doCopy(andReset=false){
-        const { out, complete } = compose();
-        if (!complete) return;
-        try{
-          await navigator.clipboard.writeText(out);
-          toast('Copied to clipboard');
-          addRecent(out);
-          if(andReset) resetAll();
-        }catch(err){
-          // Fallback: create a temporary textarea
-          const ta=document.createElement('textarea');
-          ta.value=out; document.body.appendChild(ta); ta.select();
-          const ok=document.execCommand('copy');
-          document.body.removeChild(ta);
-          if(ok){ toast('Copied'); addRecent(out); if(andReset) resetAll(); }
-          else{ toast('Copy failed'); }
-        }
+    // ---- Values list for all schemas ----
+    
+    
+    function renderValuesList(levelKey, schema){
+      const box = document.getElementById('valuesList_' + levelKey);
+      if(!box) return;
+      const order = Array.isArray(schema?.order) ? schema.order : [];
+      const fields = schema?.fields || {};
+      if(!order.length){
+        box.innerHTML = '<em class="muted">No schema loaded</em>';
+        return;
       }
 
-      copyBtn.addEventListener('click', () => {
-  const { complete } = compose();
-  if (!complete) {
-    const missing = NAMING_SCHEMA.order.filter(label => !state[label]);
-    toast(`Fill in: ${missing.join(', ')}`);
-    return;
-  }
-  doCopy(false);
-});
-      copyNewBtn.addEventListener('click', ()=>doCopy(true));
 
-      // === Chips: copy on click ===
-      const valuesList = document.getElementById('valuesList');
-      valuesList.addEventListener('click', async (e)=>{
-        const chip = e.target.closest('.chip');
-        if(!chip) return;
-        const text = chip.getAttribute('data-copy') || chip.querySelector('.code')?.textContent || '';
-        if(!text) return;
-        try{ await navigator.clipboard.writeText(text); toast(`Copied: ${text}`); }
-        catch(_){ toast('Copy failed'); }
-      });
-      valuesList.addEventListener('keydown', async (e)=>{
-        if(e.key!=='Enter' && e.key!==' '){ return; }
-        const chip = e.target.closest('.chip');
-        if(!chip) return;
-        e.preventDefault();
-        const text = chip.getAttribute('data-copy') || chip.querySelector('.code')?.textContent || '';
-        if(!text) return;
-        try{ await navigator.clipboard.writeText(text); toast(`Copied: ${text}`); }
-        catch(_){ toast('Copy failed'); }
-      });
-
-      // === Recents: copy / clear via delegation ===
-      recentsEl.addEventListener('click', async (e)=>{
-        const btn = e.target.closest('button');
-        if(!btn) return;
-        if(btn.id==='clearRecentsBtn'){ clearRecents(); return; }
-        const pill = e.target.closest('.recent-pill');
-        if(!pill) return;
-        const idx = +pill.getAttribute('data-recent');
-        const items = getRecents();
-        const text = items[idx];
-        if(!text) return;
-        try{ await navigator.clipboard.writeText(text); toast(`Copied: ${text}`); }
-        catch(_){ toast('Copy failed'); }
-      });
-
-      // === Theme toggle (icon) ===
+    // ---- Theme toggle (existing) ----
+    (function themeToggleInit(){
       const themeBtn=document.getElementById('themeBtn');
       const themeIcon=document.getElementById('themeIcon');
       const root=document.documentElement;
       const saved=localStorage.getItem('theme')||'dark';
       root.setAttribute('data-theme', saved);
-      themeIcon.textContent = saved==='dark' ? '🌙' : '☀️';
-      themeBtn.addEventListener('click', ()=>{
+      if(themeIcon) themeIcon.textContent = saved==='dark' ? '🌙' : '☀️';
+      themeBtn?.addEventListener('click', ()=>{
         const cur=root.getAttribute('data-theme');
         const next=cur==='dark'?'light':'dark';
         root.setAttribute('data-theme', next);
         localStorage.setItem('theme', next);
-        themeIcon.textContent = next==='dark' ? '🌙' : '☀️';
+        if(themeIcon) themeIcon.textContent = next==='dark' ? '🌙' : '☀️';
       });
+    })();
+
+    async function loadSchemas(){
+      const sourcePills = Array.from(document.querySelectorAll('.sourcePill'));
+      try {
+        const r = await fetch('schema.json', { cache: 'no-store' });
+        if (!r.ok) throw new Error('Missing schema.json');
+        const remote = await r.json();
+        let schemas;
+        if (remote && remote.asset || remote.campaign || remote.adgroup) {
+          // multi-object
+          schemas = {
+            campaign: remote.campaign || FALLBACK_SCHEMAS.campaign,
+            adgroup:  remote.adgroup  || FALLBACK_SCHEMAS.adgroup,
+            asset:    remote.asset    || (remote.order ? remote : FALLBACK_SCHEMAS.asset)
+          };
+        } else if (remote && remote.order && remote.fields) {
+          // backward compat: single schema => asset
+          schemas = { campaign: FALLBACK_SCHEMAS.campaign, adgroup: FALLBACK_SCHEMAS.adgroup, asset: remote };
+        } else {
+          throw new Error('Bad schema format');
+        }
+        sourcePills.forEach(p=>p.textContent='Remote JSON');
+        return schemas;
+      } catch (err) {
+        sourcePills.forEach(p=>p.textContent='Embedded JSON');
+        console.warn('Using embedded schema set:', err?.message || err);
+        return FALLBACK_SCHEMAS;
+      }
     }
 
-    async function loadSchema() {
-  const sourcePill = document.getElementById('sourcePill');
-  try {
-    const r = await fetch('schema.json', { cache: 'no-store' });
-    if (!r.ok) throw new Error('Missing schema.json');
-    const remote = await r.json();
-    if (!remote || !remote.order || !remote.fields) throw new Error('Bad schema format');
-    NAMING_SCHEMA = remote;
-    if (sourcePill) sourcePill.textContent = 'Remote JSON';
-  } catch (err) {
-    NAMING_SCHEMA = FALLBACK_SCHEMA;
-    if (sourcePill) sourcePill.textContent = 'Embedded JSON';
-    console.warn('Using embedded schema:', err?.message || err);
-  }
-}
+    (async function init(){
+      const SCHEMAS = await loadSchemas();
 
-(async function init(){
-  await loadSchema();
-  renderFields(); attach(); compose(); renderValuesList(); renderRecents();
-  document.getElementById('year').textContent = new Date().getFullYear();
-})();
-  </script>
+      // Initialize three generators
+      const gens = {
+        campaign: createGenerator('campaign', SCHEMAS.campaign),
+        adgroup:  createGenerator('adgroup',  SCHEMAS.adgroup),
+        asset:    createGenerator('asset',    SCHEMAS.asset),
+      };
+
+      renderValuesList('campaign', SCHEMAS.campaign);
+      renderValuesList('adgroup', SCHEMAS.adgroup);
+      renderValuesList('asset', SCHEMAS.asset);
+      renderRecents();
+
+      // year footer
+      const y = document.getElementById('year'); if(y) y.textContent = new Date().getFullYear();
+    })();
+</script>
 </body>
 </html>
